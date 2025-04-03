@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Display GitHub Profile</title>
+</head>
+<body>
+    <h1>GitHub Profile Details</h1>
+    
+    <div id="profile-display"></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            let username = new URLSearchParams(window.location.search).get("username");
+            if (username) {
+                fetch(`/github/${username}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            document.getElementById("profile-display").innerHTML = `<p style="color:red;">${data.error}</p>`;
+                        } else {
+                            document.getElementById("profile-display").innerHTML = `
+                                <img src="${data.avatar_url}" alt="Avatar" width="100">
+                                <h2>${data.name} (@${data.user_name})</h2>
+                                <p>${data.bio}</p>
+                                <p><strong>Public Repos:</strong> ${data.public_repos}</p>
+                                <p><strong>Followers:</strong> ${data.followers}</p>
+                                <p><strong>Following:</strong> ${data.following}</p>
+                                <a href="${data.profile_url}" target="_blank">View GitHub Profile</a>
+                            `;
+                        }
+                    })
+                    .catch(error => console.error("Error fetching data:", error));
+            }
+        });
+    </script>
+
+</body>
+</html>
