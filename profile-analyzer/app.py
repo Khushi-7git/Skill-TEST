@@ -1,4 +1,5 @@
-from flask import Flask , render_template ,request ,redirect,url_for,jsonify
+import hashlib
+from flask import Flask , render_template ,request ,session,redirect,url_for,jsonify
 from ai_model import analyze_profile
 import requests
 import os
@@ -36,7 +37,7 @@ def get_db_connection():
     return conn
 
 #homepage
-@app.route('/')
+@app.route('/home')
 def home():
     return render_template('home.html')
 
@@ -46,6 +47,61 @@ def display():
     return render_template('display.html')
 
 @app.route('/analyze', methods=['POST'])  
+
+#start page 
+@app.route('/')
+def start():
+    username=session.get('username',None)
+    return render_template('start.html',username=username)
+#login page 
+@app.route('/login',method=['GET','POST'])
+def login():
+    if request.method=='POST':
+        username=request.form['username']
+        password=request.form['password']
+        hashed_password=hashlib.sha256(password.encode()).hexdigest()
+        user=sqlite3.Cursor.fetchone()
+        if user:
+            session['username']=username
+            return redirect(url_for('home'))
+        else:
+           return "Invalid username or password"
+    return render_template('login.html')
+
+ # Guest Login Route 
+@app.route('/guest')
+def guest():
+    # Redirect guest users directly to the home page
+    session['username'] = 'Guest'
+    return redirect(url_for('home'))
+
+# Logout Route
+@app.route('/logout')
+def logout():
+    session.pop('username', None)  # Remove the username from the session
+    return redirect(url_for('home'))
+
+# User Registration Route (Signup)
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        email = request.form['email']
+        username = request.form['username']
+        password = request.form['password']
+        
+        # Hash the password before saving it (security best practice)
+        hashed_password = hashlib.sha256(password.encode()).hexdigest()
+
+        with sqlite3.connect('db.sqlite') as conn:
+            cursor = conn.cursor()
+            try:
+                cursor.execute("INSERT INTO users (email, username, password) VALUES (?, ?, ?)",
+                               (email, username, hashed_password))
+                conn.commit()
+                return redirect(url_for('login'))  # After registration, redirect to login
+            except sqlite3.IntegrityError:
+                return "Email or Username already exists"
+    return render_template('register.html')
  # analyze as a endpoint
 def analyze():
     data=request.json
