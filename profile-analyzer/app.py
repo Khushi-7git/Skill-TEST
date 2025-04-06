@@ -69,7 +69,7 @@ def analyze():
 @app.route('/')
 def start():
     username=session.get('username',None)
-    return render_template('start.html',username=username)
+    return render_template('start.html',username=session.get('username'))
 #login page 
 @app.route('/login',methods=['GET','POST'])
 def login():
@@ -98,7 +98,7 @@ def login():
                 return redirect(url_for('home'))
         else:
             return render_template('login.html', error="Invalid credentials")
-    return render_template('login.html')
+    return render_template('login.html',username=session.get('username'))
  # Guest Login Route 
 @app.route('/guest')
 def guest():
@@ -110,7 +110,7 @@ def guest():
 @app.route('/logout')
 def logout():
     session.pop('username', None)  # Remove the username from the session
-    return redirect(url_for('home'))
+    return redirect(url_for('start'))
 
 # User Registration Route (Signup)
 @app.route('/register', methods=['GET', 'POST'])
@@ -133,7 +133,7 @@ def register():
 
         return redirect(url_for('login'))
 
-    return render_template('register.html')
+    return render_template('register.html',username=session.get('username'))
 # dashboard of recruiter
 @app.route('/recruiter_dashboard')
 def recruiter_dashboard():

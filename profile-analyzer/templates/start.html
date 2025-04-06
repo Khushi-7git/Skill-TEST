@@ -3,22 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>start </title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>DevLoom - Welcome</title>
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
+<style>
+   body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to bottom, #000000, #0047ab); /* black to cobalt blue */
+    color: white;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.top-bar {
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+}
+
+.logo {
+    color: rgb(255, 255, 255);
+    font-size: 64px;
+    text-shadow: 0 0 10px rgb(40, 158, 209), 0 0 20px white;
+    font-weight: bold;
+    margin-bottom: -20px;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    height: 90vh;
+    gap: 40px;
+    padding-top: 40px;
+}
+
+.intro-box {
+    width: 400px;
+    height: 250px;
+    perspective: 1000px;
+    position: relative;
+    margin-top: 20px;
+}
+
+.intro-front, .intro-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    transition: transform 0.6s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #00f0ff;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 0 20px #00f0ff;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.intro-front {
+    z-index: 2;
+    transform: rotateY(0deg);
+}
+
+.intro-back {
+    transform: rotateY(180deg);
+    z-index: 1;
+}
+
+.intro-box:hover .intro-front {
+    transform: rotateY(-180deg);
+}
+
+.intro-box:hover .intro-back {
+    transform: rotateY(0deg);
+    z-index: 2;
+}
+
+.btn-group {
+    display: flex;
+    gap: 20px;
+}
+
+.btn {
+    padding: 12px 24px;
+    font-size: 18px;
+    border-radius: 10px;
+    background-color: #00f0ff;
+    color: #000;
+    text-decoration
+</style>
+
 <body>
-    <header>
-        <h1> DevLoom </h1>
-        <h2> “Weaving your developer story into opportunities.”</h2>
-        {% if username %}
-            <p>Hello, {{ username }}! <br><a href="{{ url_for('logout') }}">Logout</a></p>
-        {% else %}
-            <p>Hello, Guest!<br> <a href="{{ url_for('login') }}">Login</a> | <a href="{{ url_for('register') }}">Register</a></p>
-        {% endif %}
-    <footer>
-        <p>&copy; 2025 DevLoom </p>
-    </footer> 
-    </header>
-    
+    <div class="top-bar">
+        <h1 class="logo">DevLoom</h1>
+    </div>
+
+    <div class="container">
+        <div class="intro-box">
+            <div class="intro-front">
+                <h2>Welcome to DevLoom</h2>
+                <p>Hover to learn more</p>
+            </div>
+            <div class="intro-back">
+                <p>
+                    DevLoom is an AI-powered web application designed to analyze and evaluate developer profiles from platforms like GitHub, LinkedIn, and coding challenge websites. It serves two main user types:
+                </p>
+                <ul>
+                    <li><strong>Developers:</strong> who get personalized feedback and career insights</li>
+                    <li><strong>Recruiters:</strong> who get structured analytics to help identify the best candidates</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <a href="/login" class="btn">Login</a>
+            <a href="/register" class="btn">Register</a>
+        </div>
+    </div>
 </body>
 </html>

@@ -4,7 +4,168 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GitHub Profile Analyzer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
+<style>
+    /* static/css/style.css */
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #0f0f0f;
+    background-image: radial-gradient(circle at top left, #1f1f1f 0%, #0f0f0f 100%);
+    color: #ffffff;
+    text-align: center;
+    padding: 50px 20px;
+}
+
+h1 {
+    font-size: 2.5rem;
+    color: #fff;
+    text-shadow: 0 0 10px #00ffe1;
+    margin-bottom: 30px;
+}
+
+h2 {
+    margin-top: 40px;
+    text-shadow: 0 0 5px #00ffe1;
+}
+
+input[type="text"],
+textarea {
+    width: 90%;
+    max-width: 500px;
+    padding: 12px 15px;
+    margin: 10px auto;
+    display: block;
+    background-color: #1e1e1e;
+    border: 1px solid #00ffe1;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 1rem;
+    box-shadow: 0 0 10px #00ffe1 inset;
+    outline: none;
+    transition: 0.3s ease;
+}
+
+input:focus,
+textarea:focus {
+    border-color: #00e6cc;
+    box-shadow: 0 0 15px #00ffe1, 0 0 25px #00e6cc;
+}
+
+button {
+    padding: 12px 25px;
+    margin: 10px;
+    background: linear-gradient(90deg, #00ffe1, #00bfa6);
+    color: #000;
+    font-weight: bold;
+    font-size: 1rem;
+    border: none;
+    border-radius: 30px;
+    box-shadow: 0 0 10px #00ffe1, 0 0 20px #00bfa6;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+button:hover {
+    transform: scale(1.05);
+    background: linear-gradient(90deg, #00fff7, #00e6cc);
+}
+
+#profile-data,
+/* static/css/style.css */
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #0f0f0f;
+    background-image: radial-gradient(circle at top left, #1f1f1f 0%, #0f0f0f 100%);
+    color: #ffffff;
+    text-align: center;
+    padding: 50px 20px;
+}
+
+h1 {
+    font-size: 2.5rem;
+    color: #fff;
+    text-shadow: 0 0 10px #00ffe1;
+    margin-bottom: 30px;
+}
+
+h2 {
+    margin-top: 40px;
+    text-shadow: 0 0 5px #00ffe1;
+}
+
+input[type="text"],
+textarea {
+    width: 90%;
+    max-width: 500px;
+    padding: 12px 15px;
+    margin: 10px auto;
+    display: block;
+    background-color: #1e1e1e;
+    border: 1px solid #00ffe1;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 1rem;
+    box-shadow: 0 0 10px #00ffe1 inset;
+    outline: none;
+    transition: 0.3s ease;
+}
+
+input:focus,
+textarea:focus {
+    border-color: #00e6cc;
+    box-shadow: 0 0 15px #00ffe1, 0 0 25px #00e6cc;
+}
+
+button {
+    padding: 12px 25px;
+    margin: 10px;
+    background: linear-gradient(90deg, #00ffe1, #00bfa6);
+    color: #000;
+    font-weight: bold;
+    font-size: 1rem;
+    border: none;
+    border-radius: 30px;
+    box-shadow: 0 0 10px #00ffe1, 0 0 20px #00bfa6;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+button:hover {
+    transform: scale(1.05);
+    background: linear-gradient(90deg, #00fff7, #00e6cc);
+}
+
+#profile-data,
+#analysis-results {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #1a1a1a;
+    border: 1px solid #00ffe1;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0 0 20px #00ffe1;
+    text-align: left;
+    color: #eee;
+}
+
+img {
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+
+</style>
+
 <body>
     <h1>GitHub Profile Analyzer</h1>
 
