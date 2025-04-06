@@ -5,13 +5,17 @@ from database import get_db_connection
 import requests
 import os
 import sqlite3
+from dotenv import load_dotenv
+load_dotenv()
+
 app=Flask(__name__)
-app.secret_key = 'devloom_secret_1234567890'
+app.secret_key = os.getenv("FLASK_SECRET_KEY")
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_FOLDER = os.path.join(BASE_DIR, "database")
-os.makedirs(DB_FOLDER, exist_ok=True)  # <-- ensures the folder exists
-
+os.makedirs(DB_FOLDER, exist_ok=True)  
 DB_PATH = os.path.join(DB_FOLDER, "profiles.db")
+
 # Connect to Database
 def get_db_connection():
     conn = sqlite3.connect(DB_PATH)
@@ -21,8 +25,8 @@ def get_db_connection():
 @app.route('/github/<username>', methods=['GET'])
 def get_github_pro(username):
     github_api_url= f"https://api.github.com/users/{username}"
-    github_token= "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"
-    header={"Authorization":"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"}
+    github_token = os.getenv("GITHUB_TOKEN")
+    header = {"Authorization": f"token {github_token}"}
     response=requests.get(github_api_url,headers=header)
     if response.status_code!=200:
         return jsonify({"error":"github user not found or reached api limits"}),404
@@ -143,14 +147,7 @@ def developer_dashboard():
         return render_template('display.html', username=session['username'])
     return redirect(url_for('login'))
 
- # analyze as a endpoint
-def analyze():
-    data=request.json
-    profile_text=data.get("profile_text")
-    if not profile_text:
-        return jsonify({"error":" no profile text provided"}),400
-    result=analyze_profile(profile_text)
-    return jsonify(result)
+
 if __name__== '__main__':
     app.run(debug=True)
 
