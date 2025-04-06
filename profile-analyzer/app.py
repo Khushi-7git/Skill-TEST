@@ -1,12 +1,22 @@
 import hashlib
 from flask import Flask , render_template ,request ,session,redirect,url_for,jsonify
 from ai_model import analyze_profile
+from database import get_db_connection
 import requests
 import os
 import sqlite3
-app=Flask(__name__,)
-DB_PATH = os.path.join("database", "profiles.db")
+app=Flask(__name__)
+app.secret_key = 'devloom_secret_1234567890'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_FOLDER = os.path.join(BASE_DIR, "database")
+os.makedirs(DB_FOLDER, exist_ok=True)  # <-- ensures the folder exists
 
+DB_PATH = os.path.join(DB_FOLDER, "profiles.db")
+# Connect to Database
+def get_db_connection():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    return conn
 #fetch github  
 @app.route('/github/<username>', methods=['GET'])
 def get_github_pro(username):
@@ -30,11 +40,7 @@ def get_github_pro(username):
     }
     return jsonify(profile_data)
 
-# Connect to Database
-def get_db_connection():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
+
 
 #homepage
 @app.route('/home')
@@ -47,6 +53,13 @@ def display():
     return render_template('display.html')
 
 @app.route('/analyze', methods=['POST'])  
+def analyze():
+    data=request.json
+    profile_text=data.get("profile_text")
+    if not profile_text:
+        return jsonify({"error":" no profile founded"}),400
+    result=analyze_profile(profile_text)
+    return jsonify(result)
 
 #start page 
 @app.route('/')
@@ -54,20 +67,34 @@ def start():
     username=session.get('username',None)
     return render_template('start.html',username=username)
 #login page 
-@app.route('/login',method=['GET','POST'])
+@app.route('/login',methods=['GET','POST'])
 def login():
     if request.method=='POST':
-        username=request.form['username']
-        password=request.form['password']
-        hashed_password=hashlib.sha256(password.encode()).hexdigest()
-        user=sqlite3.Cursor.fetchone()
-        if user:
-            session['username']=username
-            return redirect(url_for('home'))
-        else:
-           return "Invalid username or password"
-    return render_template('login.html')
+        username = request.form['username']
+        password = request.form['password']
+        role = request.form['role']
 
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        if role == 'developer':
+            cursor.execute("SELECT * FROM developers WHERE username=? AND password=?", (username, password))
+        elif role == 'recruiter':
+            cursor.execute("SELECT * FROM recruiters WHERE username=? AND password=?", (username, password))
+
+        user = cursor.fetchone()
+        conn.close()
+
+        if user:
+            session['username'] = username
+            session['role'] = role
+            if role == 'developer':
+                return redirect(url_for('developer_dashboard'))
+            elif role == 'recruiter':
+                return redirect(url_for('home'))
+        else:
+            return render_template('login.html', error="Invalid credentials")
+    return render_template('login.html')
  # Guest Login Route 
 @app.route('/guest')
 def guest():
@@ -85,23 +112,37 @@ def logout():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        email = request.form['email']
         username = request.form['username']
         password = request.form['password']
-        
-        # Hash the password before saving it (security best practice)
-        hashed_password = hashlib.sha256(password.encode()).hexdigest()
+        role = request.form['role']
 
-        with sqlite3.connect('db.sqlite') as conn:
-            cursor = conn.cursor()
-            try:
-                cursor.execute("INSERT INTO users (email, username, password) VALUES (?, ?, ?)",
-                               (email, username, hashed_password))
-                conn.commit()
-                return redirect(url_for('login'))  # After registration, redirect to login
-            except sqlite3.IntegrityError:
-                return "Email or Username already exists"
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        if role == 'developer':
+            cursor.execute("INSERT INTO developers (username, password) VALUES (?, ?)", (username, password))
+        elif role == 'recruiter':
+            cursor.execute("INSERT INTO recruiters (username, password) VALUES (?, ?)", (username, password))
+
+        conn.commit()
+        conn.close()
+
+        return redirect(url_for('login'))
+
     return render_template('register.html')
+# dashboard of recruiter
+@app.route('/recruiter_dashboard')
+def recruiter_dashboard():
+    if 'role' in session and session['role'] == 'recruiter':
+        return render_template('recruiter_dashboard.html')
+    return redirect(url_for('login'))
+
+@app.route('/developer_dashboard')
+def developer_dashboard():
+    if 'role' in session and session['role'] == 'Developer':
+        return render_template('display.html', username=session['username'])
+    return redirect(url_for('login'))
+
  # analyze as a endpoint
 def analyze():
     data=request.json
